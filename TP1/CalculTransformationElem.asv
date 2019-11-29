@@ -1,0 +1,8 @@
+function [g_bar] = CalculTransformationElem(alpha_i, d_i, theta_i, r_i)
+%CALCULTRANSFORMATIONELEM Calcule la matrice de transformation homogène
+%entre 2 repères consécutifs
+
+g_bar = [ cos(theta_i) -sin(theta_i) 0 d_i ; cos(alpha_i)*sin(theta_i)  cos(alpha_i)*cos(theta_i) -sin(alpha_i) -r_i];
+
+end
+
