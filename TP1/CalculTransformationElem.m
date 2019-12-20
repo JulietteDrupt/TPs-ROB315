@@ -1,8 +1,6 @@
-function [g_bar] = CalculTransformationElem(alpha_i, d_i, theta_i, r_i)
-%CALCULTRANSFORMATIONELEM Calcule la matrice de transformation homogène
-%entre 2 repères consécutifs
-
-g_bar = [cos(theta_i) -sin(theta_i) 0 d_i ; cos(alpha_i)*sin(theta_i)  cos(alpha_i)*cos(theta_i) -sin(alpha_i) -r_i*sin(alpha_i) ; sin(alpha_i)*sin(theta_i) sin(alpha_i)*cos(theta_i) cos(alpha_i) r_i*cos(alpha_i) ; 0 0 0 1];
-
+function [g] = CalculTransformationElem(alphai,di,thetai,ri)
+    g = [cos(thetai) -sin(thetai) 0 di;
+        cos(alphai)*sin(thetai) cos(alphai)*cos(thetai) -sin(alphai) -ri*sin(alphai);
+        sin(alphai)*sin(thetai) sin(alphai)*cos(thetai) cos(alphai) ri*cos(alphai);
+        0 0 0 1];
 end
-
