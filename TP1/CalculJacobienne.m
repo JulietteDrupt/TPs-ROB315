@@ -1,13 +1,16 @@
 function [J] = CalculJacobienne(alpha,d,theta,r)
 
-    global rE;
+    %Global variables => Doesn't work well with simulink
+    %global rE;
+    
+    rE =0.1;
 
     [g_06,g_elem] = CalculMGD(alpha,d,theta,r);
     N = length(alpha);
     
     g_0E = g_06*CalculTransformationElem(0,0,0,rE);
     
-    J = [];
+    J = zeros(size(alpha,2),size(alpha,2));
     
     for i=1:N
         g_0i = eye(4);
@@ -21,6 +24,6 @@ function [J] = CalculJacobienne(alpha,d,theta,r)
         p_0i = g_0i(1:3,4);
         p_iE = p_0E - p_0i;
         
-        J = cat(2,J,[cross(R_0i*[0 0 1].',p_iE);R_0i*[0 0 1].']);    
+        J(:,i) = [cross(R_0i*[0 0 1].',p_iE);R_0i*[0 0 1].'];   
     end
 end

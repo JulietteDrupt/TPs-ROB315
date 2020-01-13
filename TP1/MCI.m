@@ -1,4 +1,4 @@
-function[qd] = MCI(Xdi,Xdf,V,Te,qi)
+function [qd] = MCI(Xdi,Xdf,V,Te,qi)
 
     global kmax epsilon alphaStep; 
 
