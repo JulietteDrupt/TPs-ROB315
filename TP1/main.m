@@ -19,7 +19,7 @@ qi = [-pi/2 0 -pi/2 -pi/2 -pi/2 -pi/2].';
 qf = [0 pi/4 0 pi/2 pi/2 0].';
 
 %Configuration articulaire choisie
-q = qi;
+q = qf;
 
 theta = [q(1) q(2) q(3)+pi/2 q(4) q(5) q(6)].';
 
@@ -32,6 +32,7 @@ P = g_0E(1:3,4);
 R = g_0E(1:3,1:3);
 [angle,axe] = rotationParams(R);
 
+disp('Question 4');
 disp('Position');
 disp(P);
 disp('Vecteur de rotation');
@@ -42,6 +43,7 @@ disp(angle);
 figure;
 %Visualisation des reperes
 VisualisationRepere(q);
+title('Reperes');
 
 %Calcul de la matrice jacobienne
 J = CalculJacobienne(alpha,d,theta,r);
@@ -50,6 +52,7 @@ J = CalculJacobienne(alpha,d,theta,r);
 q_point = [0.5 1.0 -0.5 0.5 1.0 -0.5].';
 x_point = J*q_point;
 
+disp('Question 6');
 disp('Vitesse de translation');
 disp(x_point(1:3));
 disp('Vitesse de rotation');
@@ -61,9 +64,21 @@ J = J(1:3,:);
 figure;
 %Visualisation des ellipsoides
 VisualisationEllipsoide(J,q,g_0E);
+title('Ellipsoide');
 
-%Calcul de la manipulabilite
-Manip = sqrt(det(J*J.'));
+%Calcul de la manipulabilite et de la direction privilégiée de transmission
+%en vitesse
+
+M = J*J.';
+
+[vecteurs_propres,valeurs_propres]=eig(M);
+valeurs_singulieres = sort(sqrt(diag(valeurs_propres)));
+
+disp('Question 7');
+disp('Direction privilegiee');
+disp(vecteurs_propres(:,end));
+
+Manip = prod(valeurs_singulieres);
 
 disp('Manipulabilite');
 disp(Manip)
@@ -77,8 +92,8 @@ q0i = [-1.57 0.00 -1.47 -1.47 -1.47 -1.47].';
 q0f = [0 0.8 0 1 2 0].';
 
 %Choix de la position et de la condition initiales
-Xd = Xdi;
-q0 = q0i;
+Xd = Xdf;
+q0 = q0f;
 
 %Paramètres du calcul du MGI
 global kmax alphaStep epsilon;
@@ -89,6 +104,10 @@ epsilon = 10^(-3);
 
 q_etoile = MGI(Xd,q0,kmax,epsilon,alphaStep);
 
+disp('Question 8');
+disp('Configuration articulaire');
+disp(q_etoile);
+
 theta_etoile = [q_etoile(1) q_etoile(2) q_etoile(3)+pi/2 q_etoile(4) q_etoile(5) q_etoile(6)];
 [g_06_etoile,~] = CalculMGD(alpha,d,theta_etoile,r);
 g_0E_etoile = g_06_etoile*CalculTransformationElem(0,0,0,rE);
@@ -97,23 +116,22 @@ disp('Position objectif');
 disp(Xd);
 disp('Position calculee');
 disp(g_0E_etoile(1:3,4));
+disp('Erreur');
+disp(norm(Xd-g_0E_etoile(1:3,4)));
 
 %Parametres du calcul du MCI
 V = 1;
 Te = 10^(-3);
 
-Q = MCI(Xdi,Xdf,V,Te,qi);
+[Q,X] = MCI(Xdi,Xdf,V,Te,qi);
 
-Qf = Q(:,end);
-
-theta_Q = [Qf(1) Qf(2) Qf(3)+pi/2 Qf(4) Qf(5) Qf(6)];
-[g_06_Q,~] = CalculMGD(alpha,d,theta_Q,r);
-g_0E_Q = g_06_Q*CalculTransformationElem(0,0,0,rE);
-
-disp('Position visee');
-disp(Xdf);
-disp('Position atteinte');
-disp(g_0E_Q(1:3,4));
+figure;
+%Visualisation de la trajectoire réelle de l'organe terminal
+VisualisationTrajectoire(Q);
+%Visualisation de la consigne de trajectoire de l'organe terminal
+plot3(X(1,:),X(2,:),X(3,:),'m--');
+hold on;
+title('Trajectoire brute');
 
 %Valeurs des butees articulaires
 qmin = [-pi -pi/2 -pi -pi -pi/2 -pi].';
@@ -122,20 +140,18 @@ qmax = [0 pi/2 0 pi/2 pi/2 pi/2].';
 %Parametre d'evitement des butees
 alphaH = 0.01;
 
-Q_butees = MCIbutees(Xdi,Xdf,V,Te,qi,alphaH,qmin,qmax);
+[Q_butees,X_butees] = MCIbutees(Xdi,Xdf,V,Te,qi,alphaH,qmin,qmax);
 
-Qf_butees = Q_butees(:,end);
+figure;
+%Visualisation de la trajectoire réelle de l'organe terminal
+VisualisationTrajectoire(Q_butees);
+%Visualisation de la consigne de trajectoire de l'organe terminal
+plot3(X_butees(1,:),X_butees(2,:),X_butees(3,:),'m--');
+hold on;
+title('Trajectoire avec evitement');
 
-theta_Q_butees = [Qf_butees(1) Qf_butees(2) Qf_butees(3)+pi/2 Qf_butees(4) Qf_butees(5) Qf_butees(6)];
-[g_06_Q,~] = CalculMGD(alpha,d,theta_Q_butees,r);
-g_0E_Q = g_06_Q*CalculTransformationElem(0,0,0,rE);
 
-disp('Position visee');
-disp(Xdf);
-disp('Position atteinte');
-disp(g_0E_Q(1:3,4));
-
-%Plot
+%Plot des valeurs des variables articulaires
 
 T=[];
 
@@ -155,7 +171,10 @@ for i = 1:6
     hold on;
     plot(T,ones(1,size(Q_plot,2))*qmax(i),'r');
     hold on;
+    xlabel('Temps (en s)');
+    ylabel('Angle (en rad)');
 end
+title('Trajectoire brute');
 
 T = [];
 
@@ -175,5 +194,10 @@ for i = 1:6
     hold on;
     plot(T,ones(1,size(Q_plot,2))*qmax(i),'r');
     hold on;
+    xlabel('Temps (en s)');
+    ylabel('Angle (en rad)');
 end
+title('Trajectoire avec evitement');
+
+
 

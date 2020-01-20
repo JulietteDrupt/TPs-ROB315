@@ -1,7 +1,17 @@
+%>% ======================================================================
+%>%> @brief Calcule le vecteur des couples dus à la gravité G(q) en
+%>%> utilisant le calcul de l'énergie potentielle de pesanteur de la chaîne
+%>%> articulée (slide 149 du cours)
+%>%>
+%>%> @param q Configuration articulaire nombre_articulationsx1
+%>%>
+%>%> @retval G Vecteur des couples induits par la gravité 
+%>%> nombre_articulationsx1
+%>% ======================================================================
 function [G] = CalculCoupleGravite(q)
     g = [0 0 -9.81].';  
     
-    %Global variables => Doesn't work well with simulink
+    %Variables globales => Ne fonctionnent pas bien avec Simulink
     %global alpha d r OG m;
     
     %Parametres geometriques du robot - Convention DHM
@@ -20,8 +30,10 @@ function [G] = CalculCoupleGravite(q)
     
     theta = [q(1) q(2) q(3)+pi/2 q(4) q(5) q(6)].';
     
+    %Calcul des matrices jacobienne relatives aux vitesses de translation aux centres de masses
     [OJv_Gi, ~] = CalculMatriceJacobienneGi(alpha, d, theta, r, OG(:,1),OG(:,2),OG(:,3));
     
+    %Intialisation du tableau
     G = zeros(size(theta));
     
     for i=1:size(theta,1)

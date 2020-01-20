@@ -35,6 +35,8 @@ global Rred Jm;
 Rred = [100 100 100 70 70 70];
 Jm = ones(size(Rred))*10^(-5);
 
+Tmax_m = ones(size(Rred))*5;
+
 %Paramètres du modèle de frottement
 
 global Fv;
@@ -60,13 +62,14 @@ theta = [q(1) q(2) q(3)+pi/2 q(4) q(5) q(6)].';
 %Calcul de la matrice d'inertie
 A = CalculMatriceInertie(q);
 
-disp('Matrice interie');
-disp(A);
-
 %Calcul des bornes sur la matrice d'inertie
 Nconfigs = 1000;
 mu2 = 0;
 mu1 = 999999;
+
+disp('Question 14');
+disp('Nombre de configurations test');
+disp(Nconfigs);
 
 for i=1:Nconfigs
     qTemp = qmin + rand()*(qmax-qmin);
@@ -92,15 +95,16 @@ disp(mu2);
 %Calcul du vecteur des couples de gravite
 G = CalculCoupleGravite(q);
 
-disp('Vecteur des couples de gravite');
-disp(G);
-
 %Calcul de la borne superieure sur le vecteur des couples de gravite
 gb = 0;
 
+disp('Question 16');
+disp('Nombre de configurations test');
+disp(Nconfigs);
+
 for i=1:Nconfigs
     qTemp = qmin + rand()*(qmax-qmin);
-    G = CalculCoupleGravite(q);
+    G = CalculCoupleGravite(qTemp);
     tempGb = norm(G,1);
     
     if(tempGb > gb)
@@ -114,8 +118,14 @@ disp(gb);
 %Calcul des temps d'exectuion minimaux de la trajectoire qi->qf pour chaque
 %articulation
 
-tf = CalculTempsTrajectoire(qi,qf,mu2);
+Tmax_a = Tmax_m.*Rred;
 
+ka = Tmax_a.'/mu2;
+
+D = abs(qf - qi);
+
+tf = sqrt(10*D./(sqrt(3)*ka));
+
+disp('Question 18');
 disp('Temps execution minimal de la trajectoire pour chaque articulation');
 disp(tf);
-
